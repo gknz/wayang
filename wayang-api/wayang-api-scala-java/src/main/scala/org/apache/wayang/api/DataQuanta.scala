@@ -39,6 +39,7 @@ import org.apache.wayang.core.util.{Tuple => WayangTuple}
 import org.apache.wayang.basic.data.{Record, Tuple2 => WayangTuple2}
 import org.apache.wayang.basic.model.{DLModel, LogisticRegressionModel,DecisionTreeRegressionModel};
 import org.apache.wayang.commons.util.profiledb.model.Experiment
+import org.apache.wayang.basic.operators.JoinFlattenOperator
 import com.google.protobuf.ByteString;
 import org.apache.wayang.api.python.function._
 import org.tensorflow.ndarray.NdArray
@@ -95,6 +96,20 @@ class DataQuanta[Out: ClassTag](val operator: ElementaryOperator, outputIndex: I
     ))
     this.connectTo(mapOperator, 0)
     mapOperator
+  }
+
+  /**
+    * Feed this instance into a [[org.apache.wayang.basic.operators.JoinFlattenOperator]].
+    * Concatenates the field arrays of the two [[Record]]s in each [[Tuple2]] into a
+    * single [[Record]]. Use this after a join when downstream operators consume
+    * [[Record]] (e.g., a table sink, a projection) rather than [[Tuple2]].
+    *
+    * @return a new instance representing the [[org.apache.wayang.basic.operators.JoinFlattenOperator]]'s output
+    */
+  def flattenJoined(): DataQuanta[Record] = {
+    val flattenOperator = new JoinFlattenOperator()
+    this.connectTo(flattenOperator, 0)
+    flattenOperator
   }
 
   /**

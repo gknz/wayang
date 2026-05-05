@@ -62,7 +62,8 @@ public class Mappings {
             new KafkaTopicSinkMapping(),
             new KafkaTopicSourceMapping(),
             new ParquetSinkMapping(),
-            new TableSinkMapping()
+            new TableSinkMapping(),
+            new JoinFlattenMapping()
 
     );
 

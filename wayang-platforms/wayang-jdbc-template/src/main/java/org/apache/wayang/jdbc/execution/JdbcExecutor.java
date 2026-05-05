@@ -38,6 +38,7 @@ import org.apache.wayang.jdbc.channels.SqlQueryChannel;
 import org.apache.wayang.jdbc.compiler.FunctionCompiler;
 import org.apache.wayang.jdbc.operators.JdbcExecutionOperator;
 import org.apache.wayang.jdbc.operators.JdbcFilterOperator;
+import org.apache.wayang.jdbc.operators.JdbcJoinFlattenOperator;
 import org.apache.wayang.jdbc.operators.JdbcJoinOperator;
 import org.apache.wayang.jdbc.operators.JdbcProjectionOperator;
 import org.apache.wayang.jdbc.operators.JdbcTableSinkOperator;
@@ -139,6 +140,10 @@ public class JdbcExecutor extends ExecutorTemplate {
                 projectionTask = projectionOperator;
             } else if (nextTask.getOperator() instanceof JdbcJoinOperator joinOperator) {
                 joinTasks.add(joinOperator);
+            } else if (nextTask.getOperator() instanceof JdbcJoinFlattenOperator) {
+                // No-op: the flatten operator is a structural type-system bridge and
+                // contributes no clause to the composed SQL. SQL joins already produce
+                // flat rows, so no transformation is needed at runtime.
             } else {
                 throw new WayangException(String.format("Unsupported JDBC execution task %s", nextTask.toString()));
             }
@@ -233,7 +238,7 @@ public class JdbcExecutor extends ExecutorTemplate {
 
     /**
      * Creates a query channel and the sql statement
-     * 
+     *
      * @param stage
      * @param context
      * @return a tuple containing the sql statement
@@ -269,6 +274,10 @@ public class JdbcExecutor extends ExecutorTemplate {
                 projectionTask = projectionOperator;
             } else if (nextTask.getOperator() instanceof JdbcJoinOperator joinOperator) {
                 joinTasks.add(joinOperator);
+            } else if (nextTask.getOperator() instanceof JdbcJoinFlattenOperator) {
+                // No-op: the flatten operator is a structural type-system bridge and
+                // contributes no clause to the composed SQL. SQL joins already produce
+                // flat rows, so no transformation is needed at runtime.
             } else {
                 throw new WayangException(String.format("Unsupported JDBC execution task %s", nextTask.toString()));
             }

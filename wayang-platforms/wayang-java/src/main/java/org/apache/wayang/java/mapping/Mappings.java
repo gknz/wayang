@@ -66,7 +66,8 @@ public class Mappings {
             new ApacheIcebergSourceMapping(),
             new ApacheIcebergSinkMapping(),
             new ParquetSinkMapping(),
-            new TableSinkMapping()
+            new TableSinkMapping(),
+            new JoinFlattenMapping()
     );
 
     public static Collection<Mapping> GRAPH_MAPPINGS = Arrays.asList(

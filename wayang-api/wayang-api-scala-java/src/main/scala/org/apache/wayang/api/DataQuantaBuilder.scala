@@ -157,6 +157,15 @@ trait DataQuantaBuilder[+This <: DataQuantaBuilder[_, Out], Out] extends Logging
   def map[NewOut](udf: SerializableFunction[Out, NewOut]) = new MapDataQuantaBuilder(this, udf)
 
   /**
+    * Feed the built [[DataQuanta]] into a [[org.apache.wayang.basic.operators.JoinFlattenOperator]].
+    * Concatenates the field arrays of the two [[Record]]s in each
+    * [[org.apache.wayang.basic.data.Tuple2]] into a single [[Record]].
+    *
+    * @return a [[JoinFlattenDataQuantaBuilder]]
+    */
+  def flattenJoined() = new JoinFlattenDataQuantaBuilder(this)
+
+  /**
     * Feed the built [[DataQuanta]] into a [[MapOperator]] with a [[org.apache.wayang.basic.function.ProjectionDescriptor]].
     *
     * @param fieldNames field names for the [[org.apache.wayang.basic.function.ProjectionDescriptor]]
@@ -867,6 +876,23 @@ class ProjectionDataQuantaBuilder[In, Out](inputDataQuanta: DataQuantaBuilder[_,
   extends BasicDataQuantaBuilder[ProjectionDataQuantaBuilder[In, Out], Out] {
 
   override protected def build = applyTargetPlatforms(inputDataQuanta.dataQuanta().project(fieldNames.toSeq), this.getTargetPlatforms())
+
+}
+
+/**
+  * [[DataQuantaBuilder]] implementation for [[org.apache.wayang.basic.operators.JoinFlattenOperator]].
+  *
+  * @param inputDataQuanta [[DataQuantaBuilder]] for the input [[DataQuanta]] (must produce
+  *                        [[org.apache.wayang.basic.data.Tuple2]]s of [[Record]]s, typically the result of a join)
+  */
+class JoinFlattenDataQuantaBuilder(inputDataQuanta: DataQuantaBuilder[_, _])
+                                  (implicit javaPlanBuilder: JavaPlanBuilder)
+  extends BasicDataQuantaBuilder[JoinFlattenDataQuantaBuilder, Record] {
+
+  override protected def build = applyTargetPlatforms(
+    inputDataQuanta.dataQuanta().asInstanceOf[DataQuanta[RT2[Record, Record]]].flattenJoined(),
+    this.getTargetPlatforms()
+  )
 
 }
 

@@ -32,7 +32,8 @@ public class Mappings {
             new FilterMapping(),
             new JoinMapping(),
             new ProjectionMapping(),
-            new TableSinkMapping()
+            new TableSinkMapping(),
+            new JoinFlattenMapping()
     );
 
 }
